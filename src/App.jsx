@@ -1,71 +1,122 @@
-import { useState } from 'react'
-import './App.css'
-
+import { useRef, useState } from "react";
+import { characters } from "./data.js";
+import "./App.css";
 
 function App() {
-
-  const characters = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9","~","`","!","@","#","$","%","^","&","*","(",")","_","-","+","=","{","[","}","]",",","|",":",";","<",">",".","?",
-  "/"];
-
-  const [passwordOne, setPasswordOne] = useState("")
-  const [passwordTwo, setPasswordTwo] = useState("")
-  
-  function generatePassword() {
-    setPasswordOne("")
-    for (let i = 0; i < 15; i++) {
-      let random = characters[Math.floor(Math.random() * characters.length)]
-      setPasswordOne(prevState => prevState += random)
-    }
-    setPasswordTwo("")
-    for (let i = 0; i < 15; i++) {
-      let random = characters[Math.floor(Math.random() * characters.length)]
-      setPasswordTwo(prevState => prevState += random)
-    }
-
-  }
-
-  const [lightMode, setLightMode] = useState(false)
+  const [passwordOne, setPasswordOne] = useState("");
+  const [passwordTwo, setPasswordTwo] = useState("");
+  const [lightMode, setLightMode] = useState(false);
+  const [tooltip, setTooltip] = useState(false);
+  const [tooltipTwo, setTooltipTwo] = useState(false);
+  const inputRef = useRef(null);
+  const inputTwoRef = useRef(null);
 
   const styles = {
     main: {
-    backgroundColor: lightMode ? "#ECFDF5" : "#1F2937"
+      backgroundColor: lightMode ? "#ECFDF5" : "#1F2937",
     },
     h1: {
-      color: lightMode ? "#2B283A" : "#FFF"
+      color: lightMode ? "#2B283A" : "#FFF",
     },
     label: {
-      color: lightMode ? "#2B283A" : "#FFF"
+      color: lightMode ? "#2B283A" : "#FFF",
     },
     h4: {
-      color: lightMode ? "#6B7280" : "#D5D4D8"
+      color: lightMode ? "#6B7280" : "#D5D4D8",
+    },
+  };
+
+  function generatePassword() {
+    let newPasswordOne = "";
+    let newPasswordTwo = "";
+
+    for (let i = 0; i < 15; i++) {
+      let random = characters[Math.floor(Math.random() * characters.length)];
+      newPasswordOne += random;
     }
+    for (let i = 0; i < 15; i++) {
+      let random = characters[Math.floor(Math.random() * characters.length)];
+      newPasswordTwo += random;
+    }
+    setPasswordOne(newPasswordOne);
+    setPasswordTwo(newPasswordTwo);
   }
 
   function handleClick() {
-    setLightMode(prevState => !prevState)
+    setLightMode((prevState) => !prevState);
   }
 
-  // onClick={() => setLightMode(!lightMode)}
-  
+  const copyText = (id) => {
+    if (id === 1) {
+      let textOne = inputRef.current.innerText;
+      navigator.clipboard.writeText(textOne);
+      setTooltip(true);
+      setTimeout(() => setTooltip(false), 1000);
+    } else {
+      let textTwo = inputTwoRef.current.innerText;
+      navigator.clipboard.writeText(textTwo);
+      setTooltipTwo(true);
+      setTimeout(() => setTooltipTwo(false), 1000);
+    }
+  };
 
   return (
     <main style={styles.main}>
-      <div className="form-check form-switch">
-  <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onClick={handleClick}/>
-  <label className="form-check-label" htmlFor="flexSwitchCheckDefault" style={styles.label}> {lightMode ? "DarkMode" : "LightMode"}</label>
-</div>
       <div>
-        <h1 style={styles.h1}>Generate a <br /><span >random password</span></h1>
+        <label className="switch">
+          <input type="checkbox" onClick={handleClick} />
+          <span className="slider"></span>
+        </label>
+      </div>
+      <div>
+        <h1 style={styles.h1}>
+          Generate a <br />
+          <span>random password</span>
+        </h1>
         <h4 style={styles.h4}>Never use an insecure password again</h4>
         <button onClick={generatePassword}>GENERATE PASSWORD</button>
       </div>
-      <hr/>
+      <hr />
       <div className="passwords">
-        <div className="password-container">{passwordOne}</div>
-        <div className="password-container">{passwordTwo}</div>
+        <div
+          ref={inputRef}
+          className="password-container"
+          onClick={() => copyText(1)}
+        >
+          {passwordOne}
+
+          <div className="tooltip" style={{ opacity: tooltip ? "100" : "0" }}>
+            <div
+              className="tooltiptext"
+              style={{ opacity: tooltip ? "100" : "0" }}
+            >
+              Copied!
+            </div>
+          </div>
+        </div>
+
+        <div
+          ref={inputTwoRef}
+          className="password-container"
+          onClick={() => copyText(2)}
+        >
+          {passwordTwo}
+
+          <div
+            className="tooltip"
+            style={{ opacity: tooltipTwo ? "100" : "0" }}
+          >
+            <div
+              className="tooltiptext"
+              style={{ opacity: tooltipTwo ? "100" : "0" }}
+            >
+              Copied!
+            </div>
+          </div>
+        </div>
       </div>
     </main>
-  )
+  );
 }
 
-export default App
+export default App;
